@@ -15,3 +15,8 @@
     </div>
   </div>
 </template>
+<style>
+body {
+  background: #ebe9e4;
+}
+</style>
