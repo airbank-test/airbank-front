@@ -11,7 +11,7 @@ export type Transaction = {
   updatedAt: string
 }
 
-export function dateToMonthString(dateString: string) {
+export function dateToMonthString(dateString: string): string {
   const parts = dateString.split(' ')[0].split('-')
   return `${parts[0]}-${parts[1]}`
 }
@@ -20,7 +20,7 @@ export function filterTransactions(
   transactions: Transaction[],
   startMonthString: string,
   endEonthString: string
-) {
+): Transaction[] {
   return transactions.filter((a) => {
     return (
       new Date(dateToMonthString(a.transactionDate)) >=
