@@ -1,10 +1,23 @@
+export type Transaction = {
+  account: string
+  description: string
+  category: string
+  reference: string
+  currency: string
+  amount: string
+  status: string
+  transactionDate: string
+  createdAt: string
+  updatedAt: string
+}
+
 export function dateToMonthString(dateString: string) {
   const parts = dateString.split(' ')[0].split('-')
   return `${parts[0]}-${parts[1]}`
 }
 
 export function filterTransactions(
-  transactions: any[],
+  transactions: Transaction[],
   startMonthString: string,
   endEonthString: string
 ) {
