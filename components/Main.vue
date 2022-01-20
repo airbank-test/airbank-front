@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <fragment>
     <div
       class="mb-1.5 sm:flex-nowrap md:p-5 space-y-2 sm:space-y-0 sm:space-x-2 flex flex-row flex-wrap bg-white rounded-lg p-4"
     >
@@ -26,7 +26,7 @@
         >
       </a-table>
     </div>
-  </div>
+  </fragment>
 </template>
 <script>
 import { allTransactionsQuery } from '../graphql/query'
@@ -79,8 +79,14 @@ export default {
     const { data } = await this.$apollo.query({
       query: allTransactionsQuery,
     })
-    this.transactions = data.transactions
-    this.filterTransactions = data.transactions
+    const transactions = data.transactions.map((transaction) => ({
+      ...transaction,
+      updatedAt: new Date(transaction.updatedAt).toDateString(),
+      createdAt: new Date(transaction.createdAt).toDateString(),
+      transactionDate: new Date(transaction.transactionDate).toDateString(),
+    }))
+    this.transactions = transactions
+    this.filterTransactions = transactions
   },
   methods: {
     onStartMonth: function (date, dateString) {
