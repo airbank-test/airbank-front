@@ -19,4 +19,4 @@ $ yarn generate
 
 # Run project
 
-Open your fave browser and navigate to `http://localhost:4000`
+Open your fave browser and navigate to `http://localhost:3000`
