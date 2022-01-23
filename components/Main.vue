@@ -119,7 +119,6 @@ export default {
     onEndMonth: async function (date, dateString) {
       this.endMonth = dateString
       if (this.startMonth) {
-        console.log('startMonth', this.startMonth)
         this.page = 0
         const { totalCount, hasMorePages, transactions } =
           await this.fetchTrxns({
@@ -133,8 +132,6 @@ export default {
         this.hasMorePages = hasMorePages
       }
       if (dateString === '') {
-        console.log('startMonth_:', this.startMonth)
-
         this.page = 0
         const { totalCount, hasMorePages, transactions } =
           await this.fetchTrxns({
@@ -163,7 +160,6 @@ export default {
         startMonth,
         endMonth,
       }
-      console.log(variables)
       const { data } = await this.$apollo.query({
         query: allTransactionsQuery,
         variables,
