@@ -13,8 +13,9 @@
       <h2 class="mb-1 text-xl font-bold">Transactions</h2>
       <a-table
         :columns="columns"
-        :data-source="filterTransactions"
+        :data-source="transactions"
         :scroll="{ x: 1100 }"
+        :pagination="false"
         class="bg-white w-200"
       >
         <a
@@ -25,12 +26,12 @@
           >View</a
         >
       </a-table>
+      <button v-if="hasMorePages" @click="loadMore">Load More</button>
     </div>
   </fragment>
 </template>
 <script>
 import { allTransactionsQuery } from '../graphql/query'
-import { filterTransactions } from '../utils'
 
 const columns = [
   {
@@ -70,49 +71,109 @@ export default {
     return {
       columns,
       transactions: [],
-      filterTransactions: [],
       startMonth: null,
       endMonth: null,
+      page: 0,
+      pageSize: 10,
+      totalCount: null,
+      hasMorePages: true,
     }
   },
   async created() {
-    const { data } = await this.$apollo.query({
-      query: allTransactionsQuery,
+    const { totalCount, hasMorePages, transactions } = await this.fetchTrxns({
+      page: this.page,
+      pageSize: this.pageSize,
     })
-    const transactions = data.transactions.map((transaction) => ({
-      ...transaction,
-      updatedAt: new Date(transaction.updatedAt).toDateString(),
-      createdAt: new Date(transaction.createdAt).toDateString(),
-      transactionDate: new Date(transaction.transactionDate).toDateString(),
-    }))
     this.transactions = transactions
-    this.filterTransactions = transactions
+    this.totalCount = totalCount
+    this.hasMorePages = hasMorePages
   },
   methods: {
-    onStartMonth: function (date, dateString) {
+    onStartMonth: async function (date, dateString) {
       this.startMonth = dateString
       if (this.endMonth) {
-        this.filterTransactions = filterTransactions(
-          this.transactions,
-          dateString,
-          this.endMonth
-        )
+        this.page = 0
+        const { totalCount, hasMorePages, transactions } =
+          await this.fetchTrxns({
+            startMonth: this.startMonth,
+            endMonth: this.endMonth,
+            page: this.page,
+            pageSize: this.pageSize,
+          })
+        this.transactions = transactions
+        this.totalCount = totalCount
+        this.hasMorePages = hasMorePages
       }
       if (dateString === '') {
-        this.filterTransactions = this.transactions
+        this.page = 0
+        const { totalCount, hasMorePages, transactions } =
+          await this.fetchTrxns({
+            page: this.page,
+            pageSize: this.pageSize,
+          })
+        this.transactions = transactions
+        this.totalCount = totalCount
+        this.hasMorePages = hasMorePages
       }
     },
-    onEndMonth: function (date, dateString) {
+    onEndMonth: async function (date, dateString) {
       this.endMonth = dateString
       if (this.startMonth) {
-        this.filterTransactions = filterTransactions(
-          this.transactions,
-          this.startMonth,
-          dateString
-        )
+        console.log('startMonth', this.startMonth)
+        this.page = 0
+        const { totalCount, hasMorePages, transactions } =
+          await this.fetchTrxns({
+            startMonth: this.startMonth,
+            endMonth: this.endMonth,
+            page: this.page,
+            pageSize: this.pageSize,
+          })
+        this.transactions = transactions
+        this.totalCount = totalCount
+        this.hasMorePages = hasMorePages
       }
       if (dateString === '') {
-        this.filterTransactions = this.transactions
+        console.log('startMonth_:', this.startMonth)
+
+        this.page = 0
+        const { totalCount, hasMorePages, transactions } =
+          await this.fetchTrxns({
+            page: this.page,
+            pageSize: this.pageSize,
+          })
+        this.transactions = transactions
+        this.totalCount = totalCount
+        this.hasMorePages = hasMorePages
+      }
+    },
+    loadMore: async function () {
+      this.page++
+      const { totalCount, hasMorePages, transactions } = await this.fetchTrxns({
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      this.transactions = [...this.transactions, ...transactions]
+      this.totalCount = totalCount
+      this.hasMorePages = hasMorePages
+    },
+    fetchTrxns: async function ({ page, pageSize, startMonth, endMonth }) {
+      const variables = {
+        page,
+        pageSize,
+        startMonth,
+        endMonth,
+      }
+      console.log(variables)
+      const { data } = await this.$apollo.query({
+        query: allTransactionsQuery,
+        variables,
+      })
+      const { totalCount, hasMorePages } = data.transactions.metaData
+      const transactions = data.transactions.data
+      return {
+        transactions,
+        totalCount,
+        hasMorePages,
       }
     },
     viewTransaction: function (text, record) {

@@ -62,10 +62,10 @@ export default {
     })
     this.transaction = {
       ...data.transaction,
-      updatedAt: new Date(data.transaction.updatedAt).toDateString(),
-      createdAt: new Date(data.transaction.createdAt).toDateString(),
+      updatedAt: new Date(+data.transaction.updatedAt).toDateString(),
+      createdAt: new Date(+data.transaction.createdAt).toDateString(),
       transactionDate: new Date(
-        data.transaction.transactionDate
+        +data.transaction.transactionDate
       ).toDateString(),
     }
   },
